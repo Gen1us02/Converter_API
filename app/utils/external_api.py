@@ -31,7 +31,7 @@ async def convert(amount: int, from_cur: str, to_cur: str) -> float:
             response.raise_for_status()
             data = response.json()
             if data.get("success", False):
-                return data["result"]
+                return round(data["result"], 4)
 
             raise ValueError("API returned success=False")
         except httpx.RequestError as e:
