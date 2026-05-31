@@ -3,7 +3,8 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 from sqlalchemy.exc import IntegrityError
 from app.db.models import User
-from api.schemas.user import UserSchema, UserUpdateSchema
+from app.api.schemas.user import UserSchema, UserUpdateSchema
+from app.utils.hash import get_password_hash
 from typing import Optional
 
 
@@ -21,10 +22,12 @@ class BaseUserRepository(ABC):
         pass
 
     @abstractmethod
-    async def update_user(self, username: str, new_data: UserSchema) -> Optional[int]:
+    async def update_user(
+        self, username: str, new_data: UserUpdateSchema
+    ) -> Optional[int]:
         pass
 
-# TODO: Добавить хеширование пароля при сохранении пользователя в БД
+
 class UserRepository(BaseUserRepository):
     def __init__(self, session: AsyncSession) -> None:
         self.session = session
@@ -37,15 +40,17 @@ class UserRepository(BaseUserRepository):
 
     async def create_user(self, user: UserSchema) -> User:
         try:
-            new_user = User(**user.model_dump())
+            username = user.username
+            hashed_password = get_password_hash(user.password)
+            new_user = User(username=username, password=hashed_password)
             self.session.add(new_user)
             await self.session.commit()
             await self.session.refresh(new_user)
 
             return new_user
-        except IntegrityError as e:
+        except IntegrityError:
             await self.session.rollback()
-            raise ValueError(f"DB error: {e}")
+            raise ValueError("DB error: user creation failed")
 
     async def delete_user(self, username: str) -> Optional[int]:
         try:
@@ -58,11 +63,13 @@ class UserRepository(BaseUserRepository):
             await self.session.commit()
 
             return user_id
-        except IntegrityError as e:
+        except IntegrityError:
             await self.session.rollback()
-            raise ValueError(f"DB error: {e}")
+            raise ValueError("DB error: user deletion failed")
 
-    async def update_user(self, username: str, new_data: UserUpdateSchema) -> Optional[int]:
+    async def update_user(
+        self, username: str, new_data: UserUpdateSchema
+    ) -> Optional[int]:
         try:
             user = await self.get_user(username)
             if user is None:
@@ -70,12 +77,14 @@ class UserRepository(BaseUserRepository):
 
             update_fields = new_data.model_dump(exclude_unset=True)
             for field, value in update_fields.items():
+                if field == "password":
+                    value = get_password_hash(value)
+
                 setattr(user, field, value)
 
-            self.session.add(user)
             await self.session.commit()
             await self.session.refresh(user)
             return user.id
-        except IntegrityError as e:
+        except IntegrityError:
             await self.session.rollback()
-            raise ValueError(f"DB error: {e}")
+            raise ValueError("DB error: user update failed")
