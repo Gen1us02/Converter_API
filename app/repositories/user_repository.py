@@ -5,6 +5,8 @@ from sqlalchemy.exc import IntegrityError
 from app.db.models import User
 from app.api.schemas.user import UserSchema, UserUpdateSchema
 from app.utils.hash import get_password_hash
+from app.db.database import get_session
+from fastapi import Depends
 from typing import Optional
 
 
@@ -88,3 +90,7 @@ class UserRepository(BaseUserRepository):
         except IntegrityError:
             await self.session.rollback()
             raise ValueError("DB error: user update failed")
+
+
+def get_user_repository(session: AsyncSession = Depends(get_session)) -> UserRepository:
+    return UserRepository(session)

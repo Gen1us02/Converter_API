@@ -1,4 +1,5 @@
 from app.api.endpoints.currency import currency_router
+from app.api.endpoints.user import auth_router
 from contextlib import asynccontextmanager
 from fastapi import FastAPI
 from app.db.database import setup_db, engine
@@ -14,6 +15,7 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(lifespan=lifespan)
 app.include_router(currency_router, prefix="/currency")
+app.include_router(auth_router, prefix="/auth")
 
 if __name__ == "__main__":
     uvicorn.run("main:app", reload=True)

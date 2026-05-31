@@ -12,7 +12,7 @@ oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
 async def generate_jwt_token(data: Dict) -> str:
     to_encode = data.copy()
     expire = datetime.datetime.now() + datetime.timedelta(
-        minutes=config.auth_config.access_token_expire_minutes
+        minutes=int(config.auth_config.access_token_expire_minutes)
     )
     to_encode.update({"exp": expire})
     return jwt.encode(
