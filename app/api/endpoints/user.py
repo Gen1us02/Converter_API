@@ -1,4 +1,5 @@
 from fastapi import APIRouter, Depends, HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
 from app.api.schemas.user import UserSchema, UserInDB, UserUpdateSchema
 from app.repositories.user_repository import UserRepository, get_user_repository
 from app.core.security import generate_jwt_token
@@ -11,16 +12,16 @@ auth_router = APIRouter()
 
 @auth_router.post("/login")
 async def login(
-    user: UserSchema, repo: UserRepository = Depends(get_user_repository)
+    form: OAuth2PasswordRequestForm = Depends(), repo: UserRepository = Depends(get_user_repository)
 ) -> Dict:
-    db_user = await repo.get_user(user.username)
+    db_user = await repo.get_user(form.username)
     if not db_user:
         raise HTTPException(status_code=401, detail="Invalid username")
 
-    if not verify_password(user.password, db_user.password):
+    if not verify_password(form.password, db_user.password):
         raise HTTPException(status_code=401, detail="Incorrect password")
 
-    token = await generate_jwt_token({"sub": user.username})
+    token = await generate_jwt_token({"sub": form.username})
     return {"access_token": token, "token_type": "bearer"}
 
 

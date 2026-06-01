@@ -6,7 +6,7 @@ import datetime
 from typing import Dict
 
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="users/login")
 
 
 async def generate_jwt_token(data: Dict) -> str:
@@ -27,7 +27,7 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
         payload = jwt.decode(
             token,
             key=config.auth_config.secret_key,
-            algorithm=config.auth_config.algorithm,
+            algorithms=[config.auth_config.algorithm],
         )
         username = payload.get("sub")
         if username is None:
