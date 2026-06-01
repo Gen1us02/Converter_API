@@ -35,3 +35,42 @@ async def register(
         )
     except ValueError:
         raise HTTPException(status_code=409, detail="User already exists")
+
+
+@auth_router.get("/users/{username}", response_model=UserInDB)
+async def get_user(username: str, repo: UserRepository = Depends(get_user_repository)):
+    user = await repo.get_user(username)
+    if user is None:
+        raise HTTPException(status_code=404, detail="User not found")
+
+    return UserInDB(id=user.id, username=user.username, hashed_password=user.password)
+
+
+@auth_router.delete("/users/delete/{username}")
+async def delete_user(
+    username: str, repo: UserRepository = Depends(get_user_repository)
+) -> Dict:
+    try:
+        user_id = await repo.delete_user(username)
+        if user_id is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {"delete_user_id": user_id}
+    except ValueError:
+        raise HTTPException(status_code=409, detail="User already exists")
+
+
+@auth_router.put("/users/update/{username}")
+async def update_user(
+    username: str,
+    new_user: UserUpdateSchema,
+    repo: UserRepository = Depends(get_user_repository),
+) -> Dict:
+    try:
+        user_id = await repo.update_user(username, new_user)
+        if user_id is None:
+            raise HTTPException(status_code=404, detail="User not found")
+
+        return {"update_user_id": user_id}
+    except ValueError:
+        raise HTTPException(status_code=409, detail="User already exists")
