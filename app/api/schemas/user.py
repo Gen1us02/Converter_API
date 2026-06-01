@@ -19,6 +19,14 @@ class UserUpdateSchema(BaseModel):
     username: str | None = None
     password: str | None = None
 
+    @field_validator("password")
+    @classmethod
+    def ensure_length(cls, v: Any):
+        if v is not None and len(v) < 8:
+            raise ValueError("Password length must be bigger then 8 symbols")
+
+        return v
+
 
 class UserInDB(BaseModel):
     id: int
