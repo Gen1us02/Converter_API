@@ -1,5 +1,5 @@
 import jwt
-from fastapi import Depends, HTTPException
+from fastapi import Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer
 from app.core.config.config import config
 import datetime
@@ -31,9 +31,16 @@ async def get_current_user(token: str = Depends(oauth2_scheme)) -> str:
         )
         username = payload.get("sub")
         if username is None:
-            raise HTTPException(status_code=401, detail="Invalid token (no subject)")
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Invalid token (no subject)",
+            )
         return username
     except jwt.ExpiredSignatureError:
-        raise HTTPException(status_code=401, detail="Token expired")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Token expired"
+        )
     except jwt.InvalidTokenError:
-        raise HTTPException(status_code=401, detail="Invalid token")
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED, detail="Invalid token"
+        )
