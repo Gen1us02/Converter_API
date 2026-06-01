@@ -37,7 +37,7 @@ async def register(
         raise HTTPException(status_code=409, detail="User already exists")
 
 
-@auth_router.get("/users/{username}", response_model=UserInDB)
+@auth_router.get("/{username}", response_model=UserInDB)
 async def get_user(username: str, repo: UserRepository = Depends(get_user_repository)):
     user = await repo.get_user(username)
     if user is None:
@@ -46,7 +46,7 @@ async def get_user(username: str, repo: UserRepository = Depends(get_user_reposi
     return UserInDB(id=user.id, username=user.username, hashed_password=user.password)
 
 
-@auth_router.delete("/users/delete/{username}")
+@auth_router.delete("/delete/{username}")
 async def delete_user(
     username: str, repo: UserRepository = Depends(get_user_repository)
 ) -> Dict:
@@ -60,7 +60,7 @@ async def delete_user(
         raise HTTPException(status_code=409, detail="User already exists")
 
 
-@auth_router.put("/users/update/{username}")
+@auth_router.put("/update/{username}")
 async def update_user(
     username: str,
     new_user: UserUpdateSchema,
