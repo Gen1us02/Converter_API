@@ -1,9 +1,7 @@
 from app.api.endpoints.currency import currency_router
 from app.api.endpoints.user import auth_router
-from contextlib import asynccontextmanager
 from fastapi import FastAPI, HTTPException
 from fastapi.exceptions import RequestValidationError
-from app.db.database import setup_db, engine
 from app.api.exceptions.exception_handlers import (
     http_exception_handler,
     validation_error_handler,
@@ -11,14 +9,7 @@ from app.api.exceptions.exception_handlers import (
 import uvicorn
 
 
-@asynccontextmanager
-async def lifespan(app: FastAPI):
-    await setup_db()
-    yield
-    await engine.dispose()
-
-
-app = FastAPI(lifespan=lifespan)
+app = FastAPI()
 
 app.add_exception_handler(HTTPException, http_exception_handler)
 app.add_exception_handler(RequestValidationError, validation_error_handler)
