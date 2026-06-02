@@ -1,0 +1,47 @@
+[build-system]
+requires = ["setuptools>=61.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "currency-converter-api"
+version = "0.1.0"
+description = "Currency converter API with FastAPI"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "fastapi>=0.100.0",
+    "uvicorn[standard]>=0.23.0",
+    "sqlalchemy>=2.0.0",
+    "aiosqlite>=0.19.0",
+    "httpx>=0.24.0",
+    "python-jose[cryptography]>=3.3.0",
+    "passlib[argon2]>=1.7.4",
+    "python-dotenv>=1.0.0",
+    "pydantic>=2.0.0",
+    "pydantic-settings>=2.0.0",
+]
+
+
+[tool.pytest.ini_options]
+asyncio_mode = "auto"
+testpaths = ["tests"]
+python_files = "test_*.py"
+python_classes = "Test*"
+python_functions = "test_*"
+addopts = "-v --strict-markers --tb=short"
+markers = [
+    "asyncio: marks test as asyncio",
+    "slow: marks tests as slow",
+]
+
+[tool.coverage.run]
+omit = [
+    "tests/*",
+    "app/db/*",
+    "app/main.py",
+    "app/core/config/*",
+    "app/core/security.py",
+    "app/repositories/*",
+    "app/utils/*",
+    "migrations/*"
+]
