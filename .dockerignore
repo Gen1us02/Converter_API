@@ -1,0 +1,17 @@
+.venv
+.pytest_cache
+**/__pycache__
+*.pyc
+htmlcov
+.coverage
+.git
+Dockerfile
+.env
+tests/
+.gitignore
+README.md
+pyproject.toml
+pytest.ini
+alembic.ini
+migrations/
+.dockerignore
