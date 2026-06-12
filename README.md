@@ -21,4 +21,6 @@
   - sqlalchemy
   - pydantic
   - httpx
+  - Docker
+  - Docker Compose
 
