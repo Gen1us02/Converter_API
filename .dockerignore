@@ -12,6 +12,4 @@ tests/
 README.md
 pyproject.toml
 pytest.ini
-alembic.ini
-migrations/
 .dockerignore
